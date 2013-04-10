@@ -4,9 +4,14 @@
  */
 package semestralni.prace;
 
+import java.awt.Color;
 import java.util.Arrays;
 import java.util.Scanner;
-
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
+import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
 /**
  *
  * @author Moje
@@ -58,6 +63,10 @@ public class Matice {
     
     void nastavPole(int i, int j){
         matice=new double[i][j];
+    }
+    
+    void nastavHodlotu(int col,int row,double val){
+        matice[row][col]=val;
     }
     
     void napln(){
@@ -116,6 +125,19 @@ public class Matice {
                 System.out.printf("%9.4f ",matice[i][j]); 
             }
             System.out.println("\t|");
+        }
+    }
+    
+    void vypis(javax.swing.JPanel p){
+        p.setLayout(new java.awt.GridLayout(matice.length,matice[0].length));
+        Border border = BorderFactory.createLineBorder(Color.BLACK,1);
+        for (int i = 0; i < matice.length; i++) {
+            for (int j = 0; j < matice[0].length; j++) {
+                JTextField lab=new JTextField(String.format("%.2f",matice[i][j]));
+                lab.setBorder(border);
+                p.add(lab);
+            //    p.add(new JLabel(String.format("%.2f",matice[i][j])).setBorder(border));
+            }
         }
     }
     
