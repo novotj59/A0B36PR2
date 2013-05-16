@@ -29,6 +29,10 @@ public class DBDialog extends javax.swing.JDialog {
      * Creates new form DBForm
      * 
      * Vytvoří nový JDialog zobraující obsah databáze
+     * @throws InstantiationException 
+     * @throws ClassNotFoundException
+     * @throws SQLException
+     * @throws IllegalAccessException  
      */
     public DBDialog() throws InstantiationException, ClassNotFoundException, IllegalAccessException, SQLException {
         initComponents();

@@ -232,7 +232,13 @@ public class Matice {
         }
     }
     
-    void vypis(javax.swing.JPanel p){
+    /**
+     *
+     * @param p
+     * 
+     * Vypisuje matici do zadaného panelu
+     */
+    public void vypis(javax.swing.JPanel p){
         p.setLayout(new java.awt.GridLayout(matice.length,matice[0].length));
         Border border = BorderFactory.createLineBorder(Color.BLACK,1);
         for (int i = 0; i < matice.length; i++) {
