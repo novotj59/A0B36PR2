@@ -5,10 +5,18 @@
 package semestralni.prace;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.Arrays;
 import java.util.Scanner;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
@@ -19,6 +27,11 @@ import javax.swing.border.LineBorder;
 public class Matice {
     double[][] matice;
 
+    /**
+     *
+     * @param obj
+     * @return
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
@@ -34,6 +47,10 @@ public class Matice {
         return true;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public int hashCode() {
         int hash = 7;
@@ -41,10 +58,17 @@ public class Matice {
         return hash;
     }
 
+    /**
+     *
+     * @param rozmer
+     */
     public Matice(int rozmer) {
         matice= new double[rozmer][rozmer];
     }
     
+    /**
+     *
+     */
     public Matice(){
         
     }
@@ -54,9 +78,28 @@ public class Matice {
         matice= new double[][];
     }*/
     
+    /**
+     *
+     * @param rozmer_x
+     * @param rozmer_y
+     * 
+     * Vytvoří prázdnou matici o zadaných rozměrech
+     */
     public Matice(int rozmer_x, int rozmer_y) {
         matice= new double[rozmer_x][rozmer_y];
+        for (int i = 0; i <rozmer_x; i++) {
+            for (int j = 0; j < rozmer_y; j++) {
+                matice[i][j]=0;
+            }
+            
+        }
     }
+    /**
+     *
+     * @param arr
+     * 
+     * Vytvoří matici o rozměrech a obsahu zadaného pole
+     */
     public Matice(double[][] arr){
         matice=arr.clone();
     }
@@ -65,7 +108,15 @@ public class Matice {
         matice=new double[i][j];
     }
     
-    void nastavHodlotu(int col,int row,double val){
+    /**
+     *
+     * @param col
+     * @param row
+     * @param val
+     * 
+     * Nastaví hiodnout matice na zadaných souřadnicích
+     */
+    public void nastavHodnotu(int col,int row,double val){
         matice[row][col]=val;
     }
     
@@ -83,9 +134,9 @@ public class Matice {
         }
     }
     
-    Matice maticeSecti(Matice B){
+    Matice maticeSecti(Matice B, Component cmpt){
         if((matice.length!=B.matice.length)||(matice[0].length!=B.matice[0].length)){
-            System.out.println("Matice musí být stejně velké");
+            JOptionPane.showMessageDialog(null, "Matice musí být stejných rozměrů", "Chyba výpočtu", JOptionPane.WARNING_MESSAGE);
             return null;
         }
         Matice C=new Matice(this.matice);
@@ -107,7 +158,13 @@ public class Matice {
         return a;
     }
     
-    double[][] GetPole(){
+    /**
+     *
+     * @return
+     * 
+     * Vrací pole tvořící matici
+     */
+    public double[][] GetPole(){
         return this.matice;
     }
     
@@ -128,12 +185,61 @@ public class Matice {
         }
     }
     
+    void nactiSoubor(String cesta, java.awt.Component cmpt){ //metoda pro nacteni soubru podle nastavenych parametru
+        int i,j;
+        try {
+            Scanner s = new Scanner(new FileInputStream(cesta), "UTF8");
+            try{
+                i=s.nextInt();
+                j=s.nextInt();
+                s.next();
+                this.nastavPole(i, j);
+                for (int l = 0; l < i; l++) {
+                    while(!s.hasNextDouble()){
+                        if(s.hasNext()){
+                            s.next();
+                        }
+                    }
+                    for (int m = 0; m < j; m++) {
+                        this.matice[l][m]=s.nextDouble();
+                    }
+                    //s.next();
+                }
+            }catch(Exception e){
+                JOptionPane.showMessageDialog(cmpt, "Soubor má nesprávný formát, nebo je poškozen!", "Chyba vstupních dat", JOptionPane.WARNING_MESSAGE);
+                this.matice=null;
+            }
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+    
+    void ulozSoubor(String cesta, java.awt.Component cmpt){ //okládání souboru - shodné s výpisem matice na obrazovku, jen je přidáno vložení rozměrů a je vypisováno do souboru
+        try{
+            Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(cesta), "UTF8"));
+            out.write(String.format("%d  %d %n",matice.length,matice[0].length));
+            for (int i = 0; i < matice.length; i++) {
+                out.write("|  ");
+                for (int j = 0; j < matice[0].length; j++) {
+                    out.write(String.format("%9.4f ",matice[i][j])); 
+                }
+                out.write(String.format("\t| %n"));
+            }
+            out.close();
+        }
+        catch (Exception e) {
+            JOptionPane.showMessageDialog(cmpt, "Soubor nelze vytvořit, pravděpodobně nemáte dostatečná práva pro zápis v daném umístění", "Chyba ukládání", JOptionPane.WARNING_MESSAGE);
+        }
+    }
+    
     void vypis(javax.swing.JPanel p){
         p.setLayout(new java.awt.GridLayout(matice.length,matice[0].length));
         Border border = BorderFactory.createLineBorder(Color.BLACK,1);
         for (int i = 0; i < matice.length; i++) {
             for (int j = 0; j < matice[0].length; j++) {
-                JTextField lab=new JTextField(String.format("%.2f",matice[i][j]));
+                JTextField lab=new JTextField(String.format("%.3f",matice[i][j]));
+                lab.setHorizontalAlignment(JTextField.CENTER);
+                lab.setEditable(false);
                 lab.setBorder(border);
                 p.add(lab);
             //    p.add(new JLabel(String.format("%.2f",matice[i][j])).setBorder(border));
@@ -143,7 +249,7 @@ public class Matice {
     
     Matice vynasob(Matice A){
         if (matice[0].length!=A.matice.length){
-            System.out.println("matice těchto rozměrů nelze násobit");
+            JOptionPane.showMessageDialog(null, "Matice těchto rozměrů nelze násobit!", "Chyba výpočtu", JOptionPane.WARNING_MESSAGE);
             return null;
         }
         Matice B=new Matice(matice.length,A.matice[0].length);
@@ -172,7 +278,8 @@ public class Matice {
     double determinant(double[][] mat){
         double det=0;
         if(mat.length!=mat[0].length){
-            return 0;
+            JOptionPane.showMessageDialog(null, "Determinant lze počítat jen u čtvercových matic!", "Chyba výpočtu", JOptionPane.WARNING_MESSAGE);
+            return Double.MAX_VALUE;
         }
         if(mat.length==1){
             return mat[0][0];

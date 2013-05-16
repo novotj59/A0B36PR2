@@ -5,31 +5,37 @@
 package semestralni.prace;
 
 import java.awt.FlowLayout;
-import javax.swing.JLabel;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import semestralni.prace.database.DBDialog;
 
 
 /**
  *
  * @author Moje
+ * 
+ * Třída pro výběr zadání nové matice
  */
-public class VyberRozmeru extends javax.swing.JDialog {
+public class VyberVstupu extends javax.swing.JDialog {
     
     private Matice m=new Matice();
 
     /**
      * Creates new form Main_window
+     * 
+     * Vytvoří okno peo výběr a zadání nové matice
      */
-    public VyberRozmeru() {
+    public VyberVstupu() {
         initComponents();
     }
     
-   /* public VyberRozmeru(Matice m) {
-        this.m=m;
-        initComponents();
-    }*/
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -47,23 +53,10 @@ public class VyberRozmeru extends javax.swing.JDialog {
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
 
- //       setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
         colsBox.setText("2");
-        colsBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                colsBoxActionPerformed(evt);
-            }
-        });
-
         rowsBox.setText("2");
-        rowsBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                rowsBoxActionPerformed(evt);
-            }
-        });
-
         jLabel1.setText("Sloupce");
 
         jLabel2.setText("Řádky");
@@ -84,7 +77,8 @@ public class VyberRozmeru extends javax.swing.JDialog {
         
         JPanel rucne = new JPanel();
         
-
+        
+        //<editor-fold defaultstate="collapsed" desc=" Layout setting code ">
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(rucne);
         rucne.setLayout(layout);
         layout.setHorizontalGroup(
@@ -130,13 +124,26 @@ public class VyberRozmeru extends javax.swing.JDialog {
                 .addContainerGap(16, Short.MAX_VALUE))
         );
         pack();
+        //</editor-fold>
         
         JPanel fromFile=new JPanel();
         JPanel database=new JPanel();
-        fromFile.add(new JLabel("Ze souboru zatím není hotovo"));
+        JButton loadFile=new JButton("Načti soubor",createImageIcon("image/load.png")); 
+        loadFile.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                fileActionPerformed();
+            }
+        });
+        JButton loadDatabase=new JButton("Načti z databáze",createImageIcon("image/database.png")); 
+        loadDatabase.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                databaseActionPerformed();
+            }
+        });
+        fromFile.add(loadFile);
         fromFile.setLayout(new FlowLayout());
-        database.add(new JLabel("Databáze zatím není hotova"));
-        database.setLayout(new FlowLayout());
+        database.add(loadDatabase);
+       // database.setLayout(new FlowLayout());
         
         JTabbedPane tabP = new JTabbedPane();
         tabP.addTab("Ručně", rucne);
@@ -144,28 +151,36 @@ public class VyberRozmeru extends javax.swing.JDialog {
         tabP.addTab("Databáze",database);
         this.add(tabP);
         pack();
-        
-    }                  
-
-    private void colsBoxActionPerformed(java.awt.event.ActionEvent evt) {                                        
- /*   try{
-        Integer.parseInt(colsBox.getText());
-    }catch(Exception e){
-         JOptionPane.showMessageDialog(this, "Musí být zadaná čísla!", "Chyba vstupních dat", JOptionPane.WARNING_MESSAGE);
-         System.out.println("chyba");
+    }  
+    
+    private void fileActionPerformed(){
+        final JFileChooser fc = new JFileChooser();
+        int returnVal = fc.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            m.nactiSoubor(fc.getSelectedFile().getAbsolutePath(),this);
+            this.dispose();
+        }
+    }     
+    
+    private void databaseActionPerformed(){
+        try{
+            DBDialog p = new DBDialog();
+            p.setModal(true);
+            p.setVisible(true);
+            m=p.getM();
+            if (m!=null){
+                try {
+                    p.getDb().disconnect();
+                    this.dispose();
+                } catch (SQLException ex) {
+                    Logger.getLogger(VyberVstupu.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+        catch(Exception e){
+            JOptionPane.showMessageDialog(this, "Nezdařilo se připojení k databázi", "Chyba vstupních dat", JOptionPane.WARNING_MESSAGE);
+        }
     }
-        // TODO add your handling code here:*/
-    }                                       
-
-    private void rowsBoxActionPerformed(java.awt.event.ActionEvent evt) {                                        
-        // TODO add your handling code here:
- /*       try{
-        Integer.parseInt(rowsBox.getText());
-        System.out.println("dobre");
-    }catch(Exception e){
-         JOptionPane.showMessageDialog(this, "Musí být zadaná čísla!", "Chyba vstupních dat", JOptionPane.WARNING_MESSAGE);
-    }*/
-    }                                       
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {
         try {
@@ -174,7 +189,9 @@ public class VyberRozmeru extends javax.swing.JDialog {
             me.setModal(true);
             me.setVisible(true);
             m=me.getM();
-            this.dispose();
+            if(m!=null){
+                this.dispose();
+            }
         }
         catch(Exception e) {
             JOptionPane.showMessageDialog(this, "Musí být zadaná čísla!", "Chyba vstupních dat", JOptionPane.WARNING_MESSAGE);
@@ -182,44 +199,29 @@ public class VyberRozmeru extends javax.swing.JDialog {
         
     }                                        
 
+    /**
+     *
+     * @return
+     */
     public Matice getM() {
         return m;
     }
 
+    
     /**
-     * @param args the command line arguments
+     *
+     * @param path
+     * @return
+     * 
+     * Vrací ikonu vytvořenou z obrázku na zadané cestě
      */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(semestralni.prace.Vyber_rozmeru.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(semestralni.prace.Vyber_rozmeru.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(semestralni.prace.Vyber_rozmeru.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(semestralni.prace.Vyber_rozmeru.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+    protected static ImageIcon createImageIcon(String path) {
+        java.net.URL imgURL = semestralni.prace.MainWindow.class.getResource(path);
+        if (imgURL != null) {
+            return new ImageIcon(imgURL);
+        } else {
+            return null;
         }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new semestralni.prace.Vyber_rozmeru().setVisible(true);
-            }
-        });
     }
     // Variables declaration - do not modify                     
     private javax.swing.JTextField colsBox;
