@@ -36,6 +36,7 @@ public class MainWindow extends javax.swing.JFrame {
         initComponents();
     }
 
+        // <editor-fold defaultstate="collapsed" desc="Generated Code">
     private void initComponents() {
 
         jPanel11 = new javax.swing.JPanel();
@@ -215,9 +216,9 @@ public class MainWindow extends javax.swing.JFrame {
                         //.addComponent(jPanel3))));
         jPanel3.setVisible(false);
         pack();
-    }
+    }// </editor-fold>
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) { //načtení první matice
         try{
             VyberVstupu vr = new VyberVstupu();
             vr.setModal(true);
@@ -234,7 +235,7 @@ public class MainWindow extends javax.swing.JFrame {
         }
     }
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) { //načtení druhé matice
         try{
             VyberVstupu vr = new VyberVstupu();
             vr.setModal(true);
@@ -251,7 +252,7 @@ public class MainWindow extends javax.swing.JFrame {
         }
     }
 
-    private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {
+    private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) { //výběr prováděné operace
         switch (jComboBox1.getSelectedIndex()){
             case 0:
             case 1:
@@ -272,7 +273,7 @@ public class MainWindow extends javax.swing.JFrame {
         pack();
     }    
         
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) { //úprava 1. rovnice
         MatrixEntering me = new MatrixEntering(m1);
         me.setModal(true);
         me.setVisible(true);
@@ -285,7 +286,7 @@ public class MainWindow extends javax.swing.JFrame {
         pack();
     }
 
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) { //úprava 2. rovnice
         MatrixEntering me = new MatrixEntering(m2);
         me.setModal(true);
         me.setVisible(true);
@@ -298,7 +299,7 @@ public class MainWindow extends javax.swing.JFrame {
         pack();
     }
     
-    private void solveActionPerformed(java.awt.event.ActionEvent evt) {
+    private void solveActionPerformed(java.awt.event.ActionEvent evt) { //vyřešení aktuálního výpočtu
         switch (jComboBox1.getSelectedIndex()){
             case 0:
                 m3 = m1.maticeSecti(m2,this);
@@ -327,7 +328,7 @@ public class MainWindow extends javax.swing.JFrame {
                     m3=null;
                 }
         }
-        try{
+        try{  //výpis okna pro zobrazení výsledku
             JPanel vysledek=new JPanel(), vystup=new JPanel(),south=new JPanel();
             javax.swing.JButton uloz = new javax.swing.JButton("Ulož soubor", createImageIcon("image/save.gif"));
             final javax.swing.JButton db = new javax.swing.JButton("Ulož do databáze"), op = new javax.swing.JButton("Použij jako operand");
@@ -344,18 +345,16 @@ public class MainWindow extends javax.swing.JFrame {
             db.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     String s = (String)JOptionPane.showInputDialog(null,"Zadejte název matice","Database save",JOptionPane.PLAIN_MESSAGE,null,null,"");
-                    if(databaseSave(s)){
-                        if(s!=null){
-                            Window w = SwingUtilities.getWindowAncestor(op);
-                            if (w != null) {
-                                w.dispose();
-                            }
-                            databaseSave(s);
+                    if(s!=null){
+                        Window w = SwingUtilities.getWindowAncestor(op);
+                        if (w != null) {
+                            w.dispose();
                         }
+                        databaseSave(s,m3);
                     }
                 }
             });
-            op.addActionListener(new java.awt.event.ActionListener() {
+            op.addActionListener(new java.awt.event.ActionListener() { //použije výsledek jako operand pro nový výpočet
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     Window w = SwingUtilities.getWindowAncestor(op);
                     if (w != null) {
@@ -377,11 +376,11 @@ public class MainWindow extends javax.swing.JFrame {
         }
     }
     
-    private boolean databaseSave(String s){
+    private boolean databaseSave(String s, Matice m){ //vytvoří připojení k třídě database a uloží matici do souboru
         try {
             Database db= new Database();
             db.connect();
-            db.saveMatrix(m1, s);
+            db.saveMatrix(m, s);
             db.disconnect();
             return true;
         } catch (InstantiationException | ClassNotFoundException | IllegalAccessException | SQLException ex) {
